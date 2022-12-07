@@ -1,7 +1,3 @@
-// https://youtu.be/gCa0z4B-CRo
-// https://stackoverflow.com/questions/18586921/how-to-launch-html-using-chrome-at-allow-file-access-from-files-mode
-// open new terminal -> 'http-server' this fix 'The canvas has been tainted by cross-origin data.' error
-
 //Autocomplete...
 /** @type {HTMLCanvasElement} */
 
