@@ -44,6 +44,7 @@ class Raven {
         this.flapInterval = Math.random() * 50 + 50;
         this.randomColors = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)];
         this.color = 'rgb(' + this.randomColors[0] + ',' + this.randomColors[1] + ',' + this.randomColors[2] + ')';
+        this.hasTrail = Math.random() > 0.5;
     }
     update(deltatime){
         if (this.y < 0 || this.y > canvas.height - this.height){
@@ -57,7 +58,11 @@ class Raven {
             if (this.frame > this.maxFrama) this.frame = 0;
             else this.frame++;
             this.timeSinceFlap = 0;
-            particles.push(new Particle(this.x, this.y, this.width, this.color));
+            if (this.hasTrail){
+                for (let i = 0; i < 5; i++){
+                    particles.push(new Particle(this.x, this.y, this.width, this.color));
+                }
+            }
         }
         if (this.x < 0 - this.width) gameOver = true;
     }
@@ -102,9 +107,9 @@ class Explosion {
 let particles = [];
 class Particle {
     constructor(x, y, size, color){
-        this.x = x;
-        this.y = y;
-        this.size;
+        this.size = size;
+        this.x = x + this.size/2 + Math.random() * 50 - 25;
+        this.y = y + this.size/3 + Math.random() * 50 - 25;
         this.radius = Math.random() * this.size/10;
         this.maxRadus = Math.random() * 20 + 35;
         this.speedX = Math.random() * 1 + 0.5;
@@ -112,14 +117,17 @@ class Particle {
     }
     update(){
         this.x += this.speedX;
-        this.radius += 0.2;
-        if (this.radius > this.maxRadus) this.markedForDeletion = true;
+        this.radius += 0.3;
+        if (this.radius > this.maxRadus - 5) this.markedForDeletion = true;
     }
     draw(){
+        ctx.save();
+        ctx.globalAlpha = 1 - this.radius/this.maxRadus;
         ctx.beginPath();
         ctx.fillStyle = this.color;
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fill();
+        ctx.restore();
     }
 }
 
@@ -179,10 +187,11 @@ function animate(timestamp){
     }
     drawScore();
     // ES6 spread operator
-    [...ravens, ...explosions].forEach(object => object.update(deltatime));
-    [...ravens, ...explosions].forEach(object => object.draw());
+    [...particles, ...ravens, ...explosions].forEach(object => object.update(deltatime));
+    [...particles, ...ravens, ...explosions].forEach(object => object.draw());
     ravens = ravens.filter(object => !object.markedForDeletion);
     explosions = explosions.filter(object => !object.markedForDeletion);
+    particles = particles.filter(object => !object.markedForDeletion);
     //console.log(ravens);
     if (!gameOver) requestAnimationFrame(animate);
     else drawGameOver();
